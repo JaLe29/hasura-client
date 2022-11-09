@@ -1,0 +1,8 @@
+.env
+dist
+kube
+.cache
+**yarn-error.log
+**/node_modules/*
+.secret/**
+.yarn/install-state.gz
