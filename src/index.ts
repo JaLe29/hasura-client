@@ -26,11 +26,11 @@ class Client<S = {}, I = {}, U = {}> {
 		EntityTypeSelect extends keyof S,
 		SelectKeys extends keyof S[EntityTypeSelect],
 	>(
-		entityName: EntityTypeInsert | EntityTypeSelect,
+		entityName: string,
 		objects: I[EntityTypeInsert] | I[EntityTypeInsert][],
 		fields: SelectKeys[],
-	): Promise<S[EntityTypeSelect][]> {
-		const rootQueryName = `insert_${entityName}`;
+	): Promise<Pick<S[EntityTypeSelect], Unpack<SelectKeys[]>>[]> {
+		const rootQueryName = this.getRootQueryName('insert', entityName);
 		const graphqlQuery = {
 			query: `
 				mutation {
@@ -55,12 +55,10 @@ class Client<S = {}, I = {}, U = {}> {
 		entityName: string,
 		objects: U[EntityTypeUpdate] | U[EntityTypeUpdate][],
 		fields: SelectKeys[],
-		options: UpdateOptions,
-	): Promise<S[EntityTypeSelect][]> {
+		options: UpdateOptions = {},
+	): Promise<Pick<S[EntityTypeSelect], Unpack<SelectKeys[]>>[]> {
 		const { where } = options;
-
 		const rootQueryName = this.getRootQueryName('update', entityName);
-
 		const graphqlQuery = {
 			query: `
 				mutation {
@@ -83,9 +81,7 @@ class Client<S = {}, I = {}, U = {}> {
 		options: SelectOptions = {},
 	): Promise<Pick<S[EntityTypeSelect], Unpack<SelectKeys[]>>[]> {
 		const { offset, limit, where, orderBy } = options;
-
 		const rootQueryName = this.getRootQueryName('select', entityName);
-
 		const graphqlQuery = {
 			query: `
 				query ($limit: Int, $offset: Int) {

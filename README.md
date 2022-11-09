@@ -5,9 +5,12 @@
 
 Typescript based [Hasura](https://hasura.io/) GQL client.
 
--  Blazing fast GraphQL
--  ST types
--  No Graphql string mess
+- 🚀 Blazing fast GraphQL
+- ⚡️ Lightning Fast
+- 🔑 Fully Typed APIs
+- 🛠️ Rich Features
+- 📦 Optimized Build
+- 🥴 No Graphql string mess
 
 ## Installation
 ```ts
@@ -30,7 +33,7 @@ interface Select {
 }
 
 const client = new Client<Select>({
-	host: "https://yourdomain.com/v1",
+	host: "https://yourdomain.com/v1/graphql",
 	customHeaders: { 'x-hasura-admin-secret': "****" },
 	debug: true,
 })
@@ -38,3 +41,4 @@ const client = new Client<Select>({
 const users = await client.select('test_user', ['id']);
 
 ```
+See [example folder](https://github.com/JaLe29/hasura-gql-client/tree/master/example) for more details.
