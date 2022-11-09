@@ -26,7 +26,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		EntityTypeSelect extends keyof S,
 		SelectKeys extends keyof S[EntityTypeSelect],
 	>(
-		entityName: EntityTypeInsert,
+		entityName: EntityTypeSelect,
 		objects: I[EntityTypeInsert] | I[EntityTypeInsert][],
 		fields: SelectKeys[],
 	): Promise<Pick<S[EntityTypeSelect], Unpack<SelectKeys[]>>[]> {
@@ -52,7 +52,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		EntityTypeSelect extends keyof S,
 		SelectKeys extends keyof S[EntityTypeSelect],
 	>(
-		entityName: EntityTypeUpdate,
+		entityName: EntityTypeSelect,
 		objects: U[EntityTypeUpdate] | U[EntityTypeUpdate][],
 		fields: SelectKeys[],
 		options: UpdateOptions = {},
