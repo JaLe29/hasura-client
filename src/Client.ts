@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import axios from 'axios';
-import type { SelectOptions, UpdateOptions, ClientOptions, ObjectPathsWithArray, DeepPick } from './types';
+import type { SelectOptions, UpdateOptions, ClientOptions, ObjectPathsWithArray, DeepPick, NonEmptyArr } from './types';
 import { toPayload, toEnumPayload, toOrderBy, resolveFields } from './utils';
 
 const BASE_REQUEST_HEADERS = {
@@ -28,7 +28,7 @@ export class Client<S = {}, I = {}, U = {}> {
 	>(
 		entityName: EntityTypeSelect,
 		objects: I[EntityTypeInsert] | I[EntityTypeInsert][],
-		fields: ResponseKeys[],
+		fields: NonEmptyArr<ResponseKeys>,
 	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[]> {
 		const rootQueryName = this.getRootQueryName('insert', entityName as string);
 		const graphqlQuery = {
@@ -54,7 +54,7 @@ export class Client<S = {}, I = {}, U = {}> {
 	>(
 		entityName: EntityTypeSelect,
 		objects: U[EntityTypeUpdate] | U[EntityTypeUpdate][],
-		fields: ResponseKeys[],
+		fields: NonEmptyArr<ResponseKeys>,
 		options: UpdateOptions = {},
 	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[]> {
 		const { where } = options;
@@ -77,7 +77,7 @@ export class Client<S = {}, I = {}, U = {}> {
 
 	async select<EntityTypeSelect extends keyof S, ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>>(
 		entityName: EntityTypeSelect,
-		fields: ResponseKeys[],
+		fields: NonEmptyArr<ResponseKeys>,
 		options: SelectOptions = {},
 	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[]> {
 		const { offset, limit, where, orderBy } = options;

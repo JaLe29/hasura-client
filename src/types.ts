@@ -20,6 +20,8 @@ export interface ClientOptions {
 	debug?: boolean;
 }
 
+export type NonEmptyArr<T> = [T, ...T[]];
+
 type Unpack<A> = A extends Array<infer E> ? E : A;
 
 type AnyArray = any[] | ReadonlyArray<any>;
