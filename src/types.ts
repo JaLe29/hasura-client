@@ -1,5 +1,3 @@
-import type { UnionToIntersection } from 'type-fest';
-
 export enum OrderType {
 	DESC = 'desc',
 	ASC = 'asc',
@@ -31,6 +29,8 @@ type AnyFunction = (...args: any[]) => any;
 type Primitive = number | string | boolean | null | undefined;
 
 type UnionForAny<T> = T extends never ? 'A' : 'B';
+
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
 type IsStrictlyAny<T> = UnionToIntersection<UnionForAny<T>> extends never ? true : false;
 
