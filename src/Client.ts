@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 import axios from 'axios';
+import { Console } from './Console';
 import type { SelectOptions, UpdateOptions, ClientOptions, ObjectPathsWithArray, DeepPick, NonEmptyArr } from './types';
 import { toPayload, toEnumPayload, toOrderBy, resolveFields } from './utils';
+import { prettyGql } from './utilts';
 
 const BASE_REQUEST_HEADERS = {
 	'content-type': 'application/json',
@@ -19,6 +21,17 @@ export class Client<S = {}, I = {}, U = {}> {
 			return entityName;
 		}
 		return `${operation}_${entityName}`;
+	}
+
+	private async request(graphqlQuery: {
+		query: string;
+		variables?: { limit?: number; offset?: number };
+	}): Promise<{ data: any; took: number }> {
+		const start = Date.now();
+		const { data } = await axios.post(this.options.host, graphqlQuery, { headers: this.getHeaders() });
+		const took = Date.now() - start;
+
+		return { data, took };
 	}
 
 	async insert<
@@ -43,8 +56,18 @@ export class Client<S = {}, I = {}, U = {}> {
 			`,
 		};
 
-		const r = await axios.post(this.options.host, graphqlQuery, { headers: this.getHeaders() });
-		return r.data.data[rootQueryName].returning;
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			console.log(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName].returning;
 	}
 
 	async update<
@@ -71,8 +94,18 @@ export class Client<S = {}, I = {}, U = {}> {
 			`,
 		};
 
-		const r = await axios.post(this.options.host, graphqlQuery, { headers: this.getHeaders() });
-		return r.data.data[rootQueryName].returning;
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			console.log(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName].returning;
 	}
 
 	async select<EntityTypeSelect extends keyof S, ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>>(
@@ -102,10 +135,16 @@ export class Client<S = {}, I = {}, U = {}> {
 		};
 
 		if (this.options.debug) {
-			console.log(graphqlQuery.query);
+			Console.yellow(prettyGql(graphqlQuery.query));
 		}
 
-		const r = await axios.post(this.options.host, graphqlQuery, { headers: this.getHeaders() });
-		return r.data.data[rootQueryName] as any;
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			console.log(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName] as any;
 	}
 }
