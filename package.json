@@ -28,7 +28,7 @@
     "build": "yarn clean && vite build --mode release && yarn build:types",
     "build:types": "tsc ./src/index.ts --declaration --emitDeclarationOnly --declarationDir ./dist/types",
     "clean": "rimraf dist",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"example/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "start:demo": "ts-node -r tsconfig-paths/register --project tsconfig.json --files ./example/example1.ts",
     "start:publish": "ts-node -r tsconfig-paths/register --project tsconfig.json --files ./scripts/lib-publish.ts"

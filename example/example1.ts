@@ -5,35 +5,49 @@ import path from 'path';
 import Client from '../src';
 
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
-// Select type
+
+interface TestBook {
+	id: string;
+	name: string;
+}
 interface TestUser {
 	id: string;
 	email: string;
-	name: string;
+	books: TestBook[];
+	book: TestBook;
 }
 
 interface Select {
 	test_user: TestUser;
+	test_book: TestBook;
 }
 
 // Insert type
 interface InsertTestUser {
 	email: string;
+}
+
+interface InsertTestBook {
 	name: string;
 }
 
 interface Insert {
 	test_user: InsertTestUser;
+	test_book: InsertTestBook;
 }
 
 // Update type
 interface UpdateTestUser {
 	email?: string;
-	name?: string;
+}
+
+interface UpdateTestBook {
+	name: string;
 }
 
 interface Update {
 	test_user: UpdateTestUser;
+	test_book: UpdateTestBook;
 }
 
 const client = new Client<Select, Insert, Update>({
@@ -43,9 +57,11 @@ const client = new Client<Select, Insert, Update>({
 });
 
 const start = async (): Promise<void> => {
-	// select users
-	const usersSelect = await client.select('test_user', ['id']);
-	console.log(usersSelect[0]?.id);
+	// select
+	const usersSelect2 = await client.select('test_user', ['id', 'book.name', 'books.id']);
+	console.log(usersSelect2[0]?.id);
+	console.log(usersSelect2[0]?.books[0].id);
+	console.log(usersSelect2[0]?.book.name);
 
 	// insert
 	const usersInsert = await client.insert('test_user', { email: 'foo@email.com', name: 'foo' }, ['id']);
