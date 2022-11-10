@@ -4,7 +4,7 @@
 # WIP: Repository is under have development right now :-)
 
 <p align="center">
-  <a href="https://github.com/JaLe29/hasura-gql-client" target="blank"><img src="data/img.png" width="120" alt="hasura-gql-client image" /></a>
+  <a href="https://github.com/JaLe29/hasura-gql-client" target="blank"><img src="data/img.png" alt="hasura-gql-client image" /></a>
 </p>
 
 Typescript based [Hasura](https://hasura.io/) GQL client.
