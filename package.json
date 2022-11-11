@@ -2,16 +2,15 @@
   "name": "hasura-gql-client",
   "version": "0.0.20",
   "keywords": [
+    "graphql-client",
     "graphql",
-    "hasura",
-    "hasura-gql-client",
-    "hasura-client",
-    "graphql-schema",
     "graphql-schema",
     "graphql-js",
+    "hasura",
     "graphql-api",
-    "client",
-    "api"
+    "hasura-graphql",
+    "hasura-remote-schema",
+    "hasura-graphql-engine"
   ],
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
