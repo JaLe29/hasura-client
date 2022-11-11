@@ -1,4 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import gqlPrettier from 'graphql-prettier';
 import { OrderType } from './types';
+
+export const prettyGql = (gql: string): string => gqlPrettier(gql);
 
 export const set = (o: any, path: string, v: any): void => {
 	const pathParts = path.split('.');

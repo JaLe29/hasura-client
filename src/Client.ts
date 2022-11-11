@@ -1,9 +1,16 @@
-/* eslint-disable no-console */
 import axios from 'axios';
 import { Console } from './Console';
-import type { SelectOptions, UpdateOptions, ClientOptions, ObjectPathsWithArray, DeepPick, NonEmptyArr } from './types';
-import { toPayload, toEnumPayload, toOrderBy, resolveFields } from './utils';
-import { prettyGql } from './utilts';
+import type {
+	SelectOptions,
+	UpdateOptions,
+	ClientOptions,
+	ObjectPathsWithArray,
+	DeepPick,
+	NonEmptyArr,
+	Where,
+	AggregateOptions,
+} from './types';
+import { prettyGql, toPayload, toEnumPayload, toOrderBy, resolveFields } from './utils';
 
 const BASE_REQUEST_HEADERS = {
 	'content-type': 'application/json',
@@ -16,7 +23,13 @@ export class Client<S = {}, I = {}, U = {}> {
 		return { ...(this.options.customHeaders ?? {}), ...BASE_REQUEST_HEADERS };
 	}
 
-	private getRootQueryName(operation: 'select' | 'update' | 'insert' | 'delete', entityName: string): string {
+	private getRootQueryName(
+		operation: 'aggregate' | 'select' | 'update' | 'insert' | 'delete',
+		entityName: string,
+	): string {
+		if (operation === 'aggregate') {
+			return `${entityName}_${operation}`;
+		}
 		if (operation === 'select') {
 			return entityName;
 		}
@@ -49,7 +62,7 @@ export class Client<S = {}, I = {}, U = {}> {
 				mutation {
 					${rootQueryName} (objects: ${toPayload(objects)}) {
 						returning {
-							${fields.join('\n')}
+							${resolveFields(fields)}
 						}
 					}
 				}
@@ -63,7 +76,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			console.log(data);
+			Console.yellow(data);
 			Console.green(`${took}ms`);
 		}
 
@@ -73,13 +86,13 @@ export class Client<S = {}, I = {}, U = {}> {
 	async update<
 		EntityTypeUpdate extends keyof U,
 		EntityTypeSelect extends keyof S,
-		ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>,
+		ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect] & { _affected_rows: number }>,
 	>(
 		entityName: EntityTypeSelect,
 		objects: U[EntityTypeUpdate] | U[EntityTypeUpdate][],
 		fields: NonEmptyArr<ResponseKeys>,
 		options: UpdateOptions = {},
-	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[]> {
+	): Promise<DeepPick<S[EntityTypeSelect] & { affected_rows: number }, ResponseKeys>[]> {
 		const { where } = options;
 		const rootQueryName = this.getRootQueryName('update', entityName as string);
 		const graphqlQuery = {
@@ -87,7 +100,7 @@ export class Client<S = {}, I = {}, U = {}> {
 				mutation {
 					${rootQueryName} (where: ${toPayload(where)}, _set: ${toPayload(objects)}) {
 						returning {
-							${fields.join('\n')}
+							${resolveFields(fields)}
 						}
 					}
 				}
@@ -101,7 +114,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			console.log(data);
+			Console.yellow(data);
 			Console.green(`${took}ms`);
 		}
 
@@ -141,10 +154,74 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			console.log(data);
+			Console.yellow(data);
 			Console.green(`${took}ms`);
 		}
 
 		return data.data[rootQueryName] as any;
+	}
+
+	async delete<EntityTypeSelect extends keyof S, ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>>(
+		entityName: EntityTypeSelect,
+		fields: NonEmptyArr<ResponseKeys>,
+		where: Where,
+	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[]> {
+		const rootQueryName = this.getRootQueryName('delete', entityName as string);
+		const graphqlQuery = {
+			query: `
+				mutation {
+					${rootQueryName} (where: ${toPayload(where)}) {
+						returning {
+							${resolveFields(fields)}
+						}
+					}
+				}
+			`,
+		};
+
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			Console.yellow(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName].returning;
+	}
+
+	async aggregate<EntityType extends keyof S>(
+		entityName: EntityType,
+		options: AggregateOptions = {},
+	): Promise<{ aggregate: { count: number } }> {
+		const { where } = options;
+		const rootQueryName = this.getRootQueryName('aggregate', entityName as string);
+		const graphqlQuery = {
+			query: `
+				query {
+					${rootQueryName} ${where ? `(where: ${toPayload(where)})` : ''} {
+						aggregate {
+							count
+						}
+					}
+				}
+			`,
+		};
+
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			Console.yellow(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName];
 	}
 }

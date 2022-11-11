@@ -10,6 +10,10 @@ export interface SelectOptions {
 	where?: Where;
 }
 
+export interface AggregateOptions {
+	where?: Where;
+}
+
 export interface UpdateOptions {
 	where?: Where;
 }
@@ -77,4 +81,4 @@ type PropertyName = string;
 type PropertyFinalValue = string | number | boolean;
 type PropertyValue = PropertyFinalValue[] | PropertyFinalValue;
 type WhereRoot = PropertyName | typeof LEAF_OPERATORS[number];
-type Where = Record<WhereRoot, WhereLeaf>;
+export type Where = Record<WhereRoot, WhereLeaf>;

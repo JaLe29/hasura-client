@@ -71,6 +71,10 @@ const start = async (): Promise<void> => {
 	// update
 	const usersUpdate = await client.update('test_user', { email: 'foo2@email.com' }, ['id']);
 	console.log(usersUpdate[0].id);
+
+	// aggregate
+	const usersAggregate = await client.aggregate('test_user');
+	console.log(usersAggregate.aggregate.count);
 };
 
 start().catch(console.error);
