@@ -4,7 +4,7 @@
 	"compilerOptions": {
 		"types": [
 			"node",
-			// "jest"
+			"jest"
 		],
 		"useUnknownInCatchVariables": false,
 		"incremental": true,
