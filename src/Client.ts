@@ -78,7 +78,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
@@ -116,7 +116,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
@@ -156,7 +156,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
@@ -194,7 +194,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
@@ -226,7 +226,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
@@ -258,7 +258,7 @@ export class Client<S = {}, I = {}, U = {}> {
 		const { data, took } = await this.request(graphqlQuery);
 
 		if (this.options.debug) {
-			Console.yellow(data);
+			Console.yellow(JSON.stringify(data, null, 2));
 			Console.green(`${took}ms`);
 		}
 
