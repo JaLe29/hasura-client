@@ -75,6 +75,14 @@ const start = async (): Promise<void> => {
 	// aggregate
 	const usersAggregate = await client.aggregate('test_user');
 	console.log(usersAggregate.aggregate.count);
+
+	// select by pk
+	const userByPk = await client.selectByPk('test_user', ['id'], {
+		pkName: 'id',
+		pkValue: '3214',
+	});
+
+	console.log(userByPk);
 };
 
 start().catch(console.error);

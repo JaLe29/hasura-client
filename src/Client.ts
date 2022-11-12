@@ -9,6 +9,8 @@ import type {
 	NonEmptyArr,
 	Where,
 	AggregateOptions,
+	ObjectPaths,
+	PropertyValuexxx,
 } from './types';
 import { prettyGql, toPayload, toEnumPayload, toOrderBy, resolveFields } from './utils';
 
@@ -24,10 +26,10 @@ export class Client<S = {}, I = {}, U = {}> {
 	}
 
 	private getRootQueryName(
-		operation: 'aggregate' | 'select' | 'update' | 'insert' | 'delete',
+		operation: 'by_pk' | 'aggregate' | 'select' | 'update' | 'insert' | 'delete',
 		entityName: string,
 	): string {
-		if (operation === 'aggregate') {
+		if (operation === 'aggregate' || operation === 'by_pk') {
 			return `${entityName}_${operation}`;
 		}
 		if (operation === 'select') {
@@ -145,6 +147,44 @@ export class Client<S = {}, I = {}, U = {}> {
 				limit,
 				offset,
 			},
+		};
+
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			Console.yellow(data);
+			Console.green(`${took}ms`);
+		}
+
+		return data.data[rootQueryName] as any;
+	}
+
+	async selectByPk<
+		EntityTypeSelect extends keyof S,
+		ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>,
+		EntityRootKeys extends ObjectPaths<S[EntityTypeSelect]>,
+	>(
+		entityName: EntityTypeSelect,
+		fields: NonEmptyArr<ResponseKeys>,
+		pk: { pkName: EntityRootKeys; pkValue: PropertyValuexxx<S[EntityTypeSelect], EntityRootKeys> },
+	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>> {
+		const rootQueryName = this.getRootQueryName('by_pk', entityName as string);
+
+		// todo string vs number
+		const graphqlQuery = {
+			query: `
+				query {
+					${rootQueryName} (
+						${pk.pkName}: "${pk.pkValue}"
+					) {
+						${resolveFields(fields as unknown as string[])}
+					}
+				}
+			`,
 		};
 
 		if (this.options.debug) {

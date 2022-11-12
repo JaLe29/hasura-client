@@ -3,6 +3,8 @@ export enum OrderType {
 	ASC = 'asc',
 }
 
+type Key = string | number | symbol;
+
 export interface SelectOptions {
 	limit?: number;
 	offset?: number;
@@ -58,6 +60,16 @@ export type ObjectPathsWithArray<Obj, KeyPrefix extends string = '', Depth exten
 						  >;
 	  }[keyof Unpack<Obj> & string];
 
+export type ObjectPaths<Obj, KeyPrefix extends string = '', Depth extends number = 3> = Depth extends never
+	? never
+	: true extends IsStrictlyAny<Obj>
+	? never
+	: Obj extends Primitive | Date | AnyFunction
+	? never
+	: {
+			[K in keyof Unpack<Obj> & string]: Unpack<Obj>[K] extends Primitive ? `${KeyPrefix}${K}` : never;
+	  }[keyof Unpack<Obj> & string];
+
 export type DeepPick<T, K extends string> = T extends object
 	? {
 			[P in Head<K> & keyof T]: T[P] extends readonly unknown[]
@@ -65,6 +77,24 @@ export type DeepPick<T, K extends string> = T extends object
 				: DeepPick<T[P], Tail<Extract<K, `${P}.${string}`>>>;
 	  }
 	: T;
+
+export type PropertyValuexxx<Obj, Property extends Key> = Obj extends object
+	? Property extends `${infer Parent}.${infer Leaf}`
+		? Parent extends keyof Obj
+			? PropertyValuexxx<Obj[Parent], Leaf>
+			: Parent extends `${infer SubParent}[${number}]`
+			? SubParent extends keyof Obj
+				? PropertyValuexxx<Unpack<Obj[SubParent]>, Leaf>
+				: never
+			: never
+		: Property extends `${infer ArrayKey}[${number}]`
+		? ArrayKey extends keyof Obj
+			? Unpack<Obj[ArrayKey]>
+			: never
+		: Property extends keyof Obj
+		? Obj[Property]
+		: never
+	: never;
 
 type Head<T extends string> = T extends `${infer First}.${string}` ? First : T;
 
