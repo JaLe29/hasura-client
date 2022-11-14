@@ -83,6 +83,22 @@ const start = async (): Promise<void> => {
 	});
 
 	console.log(userByPk);
+
+	// select batch
+	const r = await client.selectBatch([
+		{
+			entityName: 'test_user',
+			fields: ['email'],
+			options: { limit: 1 },
+		},
+		{
+			entityName: 'test_book',
+			fields: ['name'],
+			options: { limit: 2 },
+		},
+	]);
+
+	console.log(r);
 };
 
 start().catch(console.error);

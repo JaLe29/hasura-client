@@ -163,6 +163,71 @@ export class Client<S = {}, I = {}, U = {}> {
 		return data.data[rootQueryName] as any;
 	}
 
+	async selectBatch<EntityTypeSelect extends keyof S, ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>>(
+		batch: {
+			entityName: EntityTypeSelect;
+			fields: NonEmptyArr<ResponseKeys>;
+			options?: SelectOptions;
+		}[],
+	): Promise<DeepPick<S[EntityTypeSelect], ResponseKeys>[][]> {
+		const getKey = (index: number): string => `query_key_${index}`;
+		const batchVariables: Record<string, any> = {};
+		const batchQuery: Record<string, any> = {};
+
+		batch.forEach((b, index) => {
+			const key = getKey(index);
+			const options = b.options ?? {};
+			const { entityName, fields } = b;
+
+			const { offset, limit, where, orderBy } = options;
+			const rootQueryName = this.getRootQueryName('select', entityName as string);
+
+			batchVariables[key] = {
+				[`${key}_limit`]: limit,
+				[`${key}_offset`]: offset,
+			};
+
+			batchQuery[key] = `
+				${key}: ${rootQueryName} (
+					limit: $${key}_limit,
+					offset: $${key}_offset,
+					${where ? `where: ${toPayload(where)},` : ''}
+					${orderBy ? `order_by: ${toEnumPayload(toOrderBy(orderBy))},` : ''}
+				) {
+					${resolveFields(fields as unknown as string[])}
+				}
+			`;
+		});
+
+		const queryParams = Object.values(batchVariables).reduce((acc, v) => {
+			const batchParamsKeys = Object.keys(v);
+			const gqlKeys = batchParamsKeys.map(k => `$${k}: Int`);
+			return [...acc, ...gqlKeys];
+		}, []);
+
+		const graphqlQuery = {
+			query: `
+				query (${queryParams}) {
+					${Object.values(batchQuery).reduce((acc, v) => [...acc, v], [])}
+				}
+			`,
+			variables: Object.values(batchVariables).reduce((acc, v) => ({ ...acc, ...v }), {}),
+		};
+
+		if (this.options.debug) {
+			Console.yellow(prettyGql(graphqlQuery.query));
+		}
+
+		const { data, took } = await this.request(graphqlQuery);
+
+		if (this.options.debug) {
+			Console.yellow(JSON.stringify(data, null, 2));
+			Console.green(`${took}ms`);
+		}
+
+		return new Array(batch.length).fill(0).map((_, index) => data.data[getKey(index)]);
+	}
+
 	async selectByPk<
 		EntityTypeSelect extends keyof S,
 		ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>,
@@ -198,7 +263,7 @@ export class Client<S = {}, I = {}, U = {}> {
 			Console.green(`${took}ms`);
 		}
 
-		return data.data[rootQueryName] as any;
+		return data.data[rootQueryName];
 	}
 
 	async delete<EntityTypeSelect extends keyof S, ResponseKeys extends ObjectPathsWithArray<S[EntityTypeSelect]>>(
