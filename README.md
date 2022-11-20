@@ -1,9 +1,7 @@
 # hasura-gql-client
 Typescript based Hasura GQL client for NodeJS/TS/JS apps.
 
-[![npm version](https://badge.fury.io/js/hasura-gql-client.svg)](https://badge.fury.io/js/hasura-gql-client) 
-
-# WIP: Repository is under have development right now :-)
+[![npm version](https://badge.fury.io/js/hasura-gql-client.svg)](https://badge.fury.io/js/hasura-gql-client)  
 
 <p align="center">
   <a href="https://github.com/JaLe29/hasura-gql-client" target="blank"><img src="data/img.png" alt="hasura-gql-client image" /></a>
