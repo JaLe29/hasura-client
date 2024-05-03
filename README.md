@@ -1,3 +1,5 @@
+# 💀💀💀💀💀 this project is not maintained anymore 💀💀💀💀💀
+
 # hasura-gql-client
 Typescript based Hasura GQL client for NodeJS/TS/JS apps.
 
